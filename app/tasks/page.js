@@ -58,7 +58,7 @@ export default function TasksPage() {
 
       <p>⏳ Resets every 24 hours</p>
 
-const card = {
+  const card = {
   background: "#0f1715",
   padding: 16,
   marginBottom: 12,
