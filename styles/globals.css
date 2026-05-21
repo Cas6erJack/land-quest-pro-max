@@ -5,13 +5,13 @@ body {
   color: #e8f1ee;
 }
 
-/* PAGE IDENTITY COLORS */
+/* PAGE IDENTITY */
 .page-home h1 { color: #7dd3a0; }
 .page-tasks h1 { color: #ffd166; }
 .page-plants h1 { color: #4ecdc4; }
 .page-shop h1 { color: #c77dff; }
 
-/* BASE CARD SYSTEM */
+/* CARD SYSTEM */
 .card {
   background: #0f1715;
   padding: 16px;
@@ -20,25 +20,8 @@ body {
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* EMPHASIZED CARDS */
 .card-primary {
   border: 1px solid rgba(125, 211, 160, 0.3);
-  transform: scale(1.01);
-}
-
-.card-warning {
-  border: 1px solid rgba(255, 209, 102, 0.3);
-}
-
-/* BUTTONS */
-button {
-  padding: 10px 14px;
-  margin: 6px 4px;
-  border-radius: 12px;
-  border: none;
-  background: #1f6f4a;
-  color: white;
-  font-weight: 500;
 }
 
 /* ANIMATION */
@@ -51,6 +34,7 @@ button {
   to { transform: scale(1); opacity: 1; }
 }
 
+/* PROGRESS BARS */
 .barWrap {
   height: 12px;
   background: #1a2421;
@@ -69,4 +53,14 @@ button {
   height: 100%;
   background: #66b3ff;
   transition: width 0.5s ease;
+}
+
+/* BUTTONS */
+button {
+  padding: 10px 14px;
+  margin: 6px 4px;
+  border-radius: 12px;
+  border: none;
+  background: #1f6f4a;
+  color: white;
 }
