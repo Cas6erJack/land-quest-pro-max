@@ -3,83 +3,88 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function Page() {
-  const [momentum, setMomentum] = useState(0);
+  const [xp, setXp] = useState(0);
   const [vault, setVault] = useState(0);
-  const [chronicle, setChronicle] = useState([]);
+  const [log, setLog] = useState([]);
 
-  const [coOpSync, setCoOpSync] = useState(0);
-  const [drive, setDrive] = useState(100);
+  const [wifeXp, setWifeXp] = useState(0);
+  const [energy, setEnergy] = useState(100);
   const [streak, setStreak] = useState(0);
-  const [lastFocus, setLastFocus] = useState(null);
+  const [lastCheckIn, setLastCheckIn] = useState(null);
 
   const GOAL = 5000;
 
-  const level = useMemo(() => Math.floor(momentum / 200) + 1, [momentum]);
+  const level = useMemo(() => Math.floor(xp / 200) + 1, [xp]);
 
   const rank = useMemo(() => {
-    if (level >= 13) return "🏆 Land Sovereign";
-    if (level >= 9) return "🗺️ Territory Seeker";
+    if (level >= 13) return "🏆 Land Owner";
+    if (level >= 9) return "🗺️ Land Seeker";
     if (level >= 6) return "🧱 Builder";
     if (level >= 3) return "⚒️ Grinder";
-    return "🌱 Starter";
+    return "🌱 Rookie";
   }, [level]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("greenland_save");
+    const saved = localStorage.getItem("greenland_mobile");
     if (saved) {
       const data = JSON.parse(saved);
-      setMomentum(data.momentum || 0);
+      setXp(data.xp || 0);
       setVault(data.vault || 0);
-      setChronicle(data.chronicle || []);
-      setCoOpSync(data.coOpSync || 0);
-      setDrive(data.drive ?? 100);
+      setLog(data.log || []);
+      setWifeXp(data.wifeXp || 0);
+      setEnergy(data.energy ?? 100);
       setStreak(data.streak || 0);
-      setLastFocus(data.lastFocus || null);
+      setLastCheckIn(data.lastCheckIn || null);
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem(
-      "greenland_save",
-      JSON.stringify({ momentum, vault, chronicle, coOpSync, drive, streak, lastFocus })
+      "greenland_mobile",
+      JSON.stringify({ xp, vault, log, wifeXp, energy, streak, lastCheckIn })
     );
-  }, [momentum, vault, chronicle, coOpSync, drive, streak, lastFocus]);
+  }, [xp, vault, log, wifeXp, energy, streak, lastCheckIn]);
 
-  const addChronicle = (text) => setChronicle((c) => [text, ...c]);
+  const addLog = (text) => setLog((l) => [text, ...l]);
 
-  const grindRun = () => {
-    if (drive < 20) return;
-    setDrive((d) => d - 20);
-    setMomentum((m) => m + 25);
-    addChronicle("🚗 Grind Run completed (+Momentum, -Drive)");
+  // 🚗 DoorDash shift
+  const doDoorDash = () => {
+    if (energy < 20) return;
+    setEnergy((e) => e - 20);
+    setXp((x) => x + 25);
+    addLog("🚗 DoorDash shift completed (+25 XP)");
   };
 
-  const vaultDeposit = (amount = 10) => {
-    setMomentum((m) => m + amount * 2);
-    setVault((v) => v + amount);
-    addChronicle(`💰 Vault Deposit +$${amount}`);
+  // 💰 Save money
+  const saveMoney = () => {
+    setXp((x) => x + 20);
+    setVault((v) => v + 10);
+    addLog("💰 Saved $10 (+XP + Vault)");
   };
 
-  const coOpAction = () => {
-    setCoOpSync((c) => c + 10);
-    setMomentum((m) => m + 5);
-    addChronicle("👥 Co-op Sync boosted");
+  // 👩 Wife activity
+  const wifeActivity = () => {
+    setWifeXp((x) => x + 10);
+    setXp((x) => x + 5);
+    addLog("👩 Wife activity completed");
   };
 
-  const dailyFocus = () => {
+  // 🔥 Check-in
+  const checkIn = () => {
     const today = new Date().toDateString();
-    if (lastFocus !== today) {
+    if (lastCheckIn !== today) {
       setStreak((s) => s + 1);
-      setDrive(100);
-      setLastFocus(today);
-      setMomentum((m) => m + 10);
-      addChronicle("🔥 Daily Focus Ritual completed");
+      setEnergy(100);
+      setLastCheckIn(today);
+      setXp((x) => x + 10);
+      addLog("🔥 Daily check-in completed");
     }
   };
 
-  const freezeChallenge = () => {
-    setMomentum((m) => m + 15);
-    addChronicle("❄️ Freeze Challenge completed");
+  // 🚫 No spend
+  const noSpend = () => {
+    setXp((x) => x + 15);
+    addLog("🚫 No-spend challenge completed");
   };
 
   const progress = Math.min((vault / GOAL) * 100, 100);
@@ -87,44 +92,55 @@ export default function Page() {
   return (
     <div style={styles.bg}>
 
-      <h1 style={styles.title}>🌲 GREENLAND</h1>
-      <p style={styles.sub}>The Land Builder Game</p>
-
-      {/* STATS PANEL */}
-      <div style={styles.panel}>
-        <p>🏷️ Rank: {rank}</p>
-        <p>📈 Level: {level}</p>
-        <p>⚡ Drive: {drive}/100</p>
-        <p>🔥 Momentum: {momentum}</p>
-        <p>👥 Co-op Sync: {coOpSync}</p>
-        <p>💰 Land Vault: ${vault}</p>
-        <p>⚡ Streak: {streak}</p>
+      {/* TOP HUD */}
+      <div style={styles.hud}>
+        <div>🏷️ {rank}</div>
+        <div>🔥 XP: {xp}</div>
+        <div>⚡ Energy: {energy}</div>
+        <div>💰 Vault: ${vault}</div>
+        <div>⚡ Streak: {streak}</div>
       </div>
 
-      {/* PROGRESS BAR */}
-      <div style={styles.barWrap}>
-        <div style={styles.barLabel}>🏁 Land Progress</div>
+      {/* PROGRESS */}
+      <div style={styles.card}>
+        <div>🏁 Land Progress</div>
         <div style={styles.bar}>
           <div style={{ ...styles.fill, width: `${progress}%` }} />
         </div>
       </div>
 
-      {/* ACTIONS */}
-      <div style={styles.panel}>
-        <h3>⚔️ Actions</h3>
+      {/* ACTION CARDS */}
+      <div style={styles.card}>
+        <h3>⚔️ Missions</h3>
 
-        <button style={styles.btn} onClick={grindRun}>🚗 Grind Run</button>
-        <button style={styles.btn} onClick={() => vaultDeposit(10)}>💰 Vault Deposit</button>
-        <button style={styles.btn} onClick={coOpAction}>👥 Co-op Sync</button>
-        <button style={styles.btn} onClick={dailyFocus}>🔥 Daily Focus Ritual</button>
-        <button style={styles.btn} onClick={freezeChallenge}>❄️ Freeze Challenge</button>
+        <button style={styles.btn} onClick={doDoorDash}>
+          🚗 DoorDash Shift
+        </button>
+
+        <button style={styles.btn} onClick={saveMoney}>
+          💰 Save Money
+        </button>
+
+        <button style={styles.btn} onClick={wifeActivity}>
+          👩 Wife Activity
+        </button>
+
+        <button style={styles.btn} onClick={checkIn}>
+          🔥 Daily Check-In
+        </button>
+
+        <button style={styles.btn} onClick={noSpend}>
+          🚫 No-Spend Challenge
+        </button>
       </div>
 
-      {/* CHRONICLE */}
-      <div style={styles.panel}>
-        <h3>📜 Chronicle</h3>
-        {chronicle.map((c, i) => (
-          <div key={i} style={{ fontSize: 12, opacity: 0.9 }}>• {c}</div>
+      {/* LOG */}
+      <div style={styles.card}>
+        <h3>📜 Activity Feed</h3>
+        {log.map((l, i) => (
+          <div key={i} style={{ fontSize: 12, opacity: 0.9 }}>
+            • {l}
+          </div>
         ))}
       </div>
 
@@ -135,49 +151,50 @@ export default function Page() {
 const styles = {
   bg: {
     background: "linear-gradient(#0b1220, #05070d)",
-    color: "white",
     minHeight: "100vh",
-    padding: 20,
+    color: "white",
+    padding: 15,
     fontFamily: "Arial"
   },
-  title: {
-    fontSize: 28,
-    marginBottom: 0
+
+  hud: {
+    background: "#111827",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    fontSize: 13,
+    display: "grid",
+    gap: 4
   },
-  sub: {
-    opacity: 0.7,
-    marginBottom: 20
-  },
-  panel: {
+
+  card: {
     background: "#111827",
     padding: 15,
     borderRadius: 12,
-    marginBottom: 15,
-    boxShadow: "0 0 10px rgba(0,255,100,0.1)"
+    marginBottom: 12,
+    boxShadow: "0 0 10px rgba(0,255,120,0.08)"
   },
+
   btn: {
-    display: "block",
     width: "100%",
-    marginBottom: 8,
     padding: 12,
+    marginTop: 8,
     borderRadius: 10,
     border: "none",
     background: "#1f2937",
     color: "white",
+    fontSize: 14,
     cursor: "pointer"
   },
-  barWrap: {
-    marginBottom: 15
-  },
-  barLabel: {
-    marginBottom: 5
-  },
+
   bar: {
-    height: 12,
+    height: 10,
     background: "#1f2937",
     borderRadius: 10,
-    overflow: "hidden"
+    overflow: "hidden",
+    marginTop: 8
   },
+
   fill: {
     height: "100%",
     background: "linear-gradient(90deg, #22c55e, #16a34a)"
