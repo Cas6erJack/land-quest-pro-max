@@ -95,10 +95,11 @@ export default function PlantsPage() {
 }
 
 const card = {
-  background: "#111",
+  background: "#0f1715",
   padding: 16,
   marginBottom: 12,
-  borderRadius: 12
+  borderRadius: 16,
+  border: "1px solid rgba(255,255,255,0.05)"
 };
 
 const barWrap = {
