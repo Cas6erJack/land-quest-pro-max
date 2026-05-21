@@ -3,146 +3,123 @@
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  const [coins, setCoins] = useState(0);
-  const [vault, setVault] = useState(0);
   const [plants, setPlants] = useState({
-    moneyTree: 35,
+    moneyTree: 30,
     hustleSprout: 25,
     disciplineFern: 15
   });
 
   const [log, setLog] = useState([]);
+  const [streak, setStreak] = useState(0);
 
-  const addLog = (t) => setLog((l) => [t, ...l.slice(0, 6)]); // keep it clean
+  const addLog = (t) => setLog((l) => [t, ...l.slice(0, 8)]);
 
   // 💾 LOAD
   useEffect(() => {
-    const saved = localStorage.getItem("greenland_real");
+    const saved = localStorage.getItem("greenland_product");
     if (saved) {
       const d = JSON.parse(saved);
-      setCoins(d.coins || 0);
-      setVault(d.vault || 0);
       setPlants(d.plants || plants);
       setLog(d.log || []);
+      setStreak(d.streak || 0);
     }
   }, []);
 
   // 💾 SAVE
   useEffect(() => {
     localStorage.setItem(
-      "greenland_real",
-      JSON.stringify({ coins, vault, plants, log })
+      "greenland_product",
+      JSON.stringify({ plants, log, streak })
     );
-  }, [coins, vault, plants, log]);
+  }, [plants, log, streak]);
 
-  // 🌱 GROWTH ENGINE (soft + consistent)
+  // 🌱 CORE GROWTH ENGINE
   const grow = (amount) => {
     setPlants((p) => ({
       moneyTree: Math.min(p.moneyTree + amount, 100),
-      hustleSprout: Math.min(p.hustleSprout + amount * 0.8, 100),
-      disciplineFern: Math.min(p.disciplineFern + amount * 0.6, 100)
+      hustleSprout: Math.min(p.hustleSprout + amount, 100),
+      disciplineFern: Math.min(p.disciplineFern + amount, 100)
     }));
   };
 
-  // 🚗 WORK (primary loop)
-  const doWork = () => {
-    setCoins((c) => c + 20);
-    setVault((v) => v + 10);
-    grow(15);
-    addLog("Work completed — garden supported");
+  // 🚗 WORK
+  const didWork = () => {
+    grow(18);
+    setStreak((s) => s + 1);
+    addLog("🚗 Worked today — progress made");
   };
 
-  // 💰 SAVE OPTIONS (simple but meaningful)
-  const saveSmall = () => {
-    setCoins((c) => c + 10);
-    setVault((v) => v + 5);
-    grow(8);
-    addLog("Small save added");
+  // 💰 SAVE
+  const didSave = () => {
+    grow(12);
+    addLog("💰 Saved money today");
   };
 
-  const saveStrong = () => {
-    setCoins((c) => c + 30);
-    setVault((v) => v + 20);
-    grow(20);
-    addLog("Strong save added");
+  // 🔥 CHECK-IN
+  const didCheckIn = () => {
+    grow(6);
+    addLog("🔥 Daily check-in complete");
   };
 
-  // 🧘 DAILY CHECK-IN (retention hook)
-  const checkIn = () => {
-    setCoins((c) => c + 5);
-    grow(5);
-    addLog("Daily check-in complete");
-  };
+  const Plant = ({ name, value }) => (
+    <div style={styles.plant}>
+      <p>{name}</p>
+      <div style={styles.bar}>
+        <div style={{ ...styles.fill, width: `${value}%` }} />
+      </div>
+      <p style={{ fontSize: 12, opacity: 0.6 }}>{Math.floor(value)}%</p>
+    </div>
+  );
 
   return (
     <div style={styles.bg}>
 
-      {/* 🟢 TOP STATUS */}
-      <div style={styles.topCard}>
-        <h2>🌿 Garden</h2>
-        <p>🪙 Coins: {coins} • 💰 Vault: ${vault}</p>
+      {/* HEADER */}
+      <div style={styles.card}>
+        <h2>🌿 Greenland</h2>
+        <p>Streak: {streak} 🔥</p>
         <p style={{ opacity: 0.7 }}>
-          “Take care of your money, one day at a time.”
+          Take care of your financial habits daily.
         </p>
       </div>
 
-      {/* 🌱 GARDEN */}
+      {/* PLANTS */}
       <div style={styles.card}>
-        <h3>Your Garden</h3>
+        <h3>Today’s Garden</h3>
 
         <Plant name="💰 Money Tree" value={plants.moneyTree} />
         <Plant name="🚗 Hustle Sprout" value={plants.hustleSprout} />
         <Plant name="🔥 Discipline Fern" value={plants.disciplineFern} />
       </div>
 
-      {/* ⚡ ACTIONS */}
+      {/* ACTIONS */}
       <div style={styles.card}>
         <h3>Today</h3>
 
-        <button style={styles.primary} onClick={doWork}>
-          🚗 Work Completed
+        <button style={styles.btn} onClick={didWork}>
+          🚗 I Worked Today
         </button>
 
-        <button style={styles.secondary} onClick={saveSmall}>
-          💰 Small Save
+        <button style={styles.btn} onClick={didSave}>
+          💰 I Saved Money
         </button>
 
-        <button style={styles.secondary} onClick={saveStrong}>
-          🏦 Strong Save
-        </button>
-
-        <button style={styles.soft} onClick={checkIn}>
+        <button style={styles.btn} onClick={didCheckIn}>
           🔥 Daily Check-In
         </button>
       </div>
 
-      {/* 📖 FEED (MINIMAL) */}
+      {/* LOG */}
       <div style={styles.card}>
         <h3>Activity</h3>
-        {log.length === 0 && (
-          <p style={{ opacity: 0.5 }}>No activity yet today</p>
-        )}
-
         {log.map((l, i) => (
-          <div key={i} style={{ fontSize: 12, opacity: 0.85 }}>
-            • {l}
-          </div>
+          <div key={i} style={{ fontSize: 12 }}>• {l}</div>
         ))}
       </div>
 
     </div>
   );
 }
-
-const Plant = ({ name, value }) => (
-  <div style={{ marginBottom: 12 }}>
-    <p style={{ marginBottom: 4 }}>{name}</p>
-    <div style={styles.bar}>
-      <div style={{ ...styles.fill, width: `${value}%` }} />
-    </div>
-    <p style={{ fontSize: 11, opacity: 0.6 }}>{Math.floor(value)}%</p>
-  </div>
-);
 
 const styles = {
   bg: {
@@ -152,60 +129,32 @@ const styles = {
     padding: 16,
     fontFamily: "system-ui"
   },
-
-  topCard: {
-    background: "#0f1f18",
-    padding: 16,
-    borderRadius: 14,
-    marginBottom: 12
-  },
-
   card: {
-    background: "#0c1713",
+    background: "#0f1f18",
     padding: 14,
     borderRadius: 14,
     marginBottom: 12
   },
-
-  primary: {
-    width: "100%",
-    padding: 12,
-    borderRadius: 10,
-    border: "none",
-    background: "#1f6f4a",
-    color: "white",
-    marginTop: 8
+  plant: {
+    marginBottom: 12
   },
-
-  secondary: {
-    width: "100%",
-    padding: 10,
-    borderRadius: 10,
-    border: "none",
-    background: "#1f2d26",
-    color: "white",
-    marginTop: 8
-  },
-
-  soft: {
-    width: "100%",
-    padding: 10,
-    borderRadius: 10,
-    border: "1px solid #1f2d26",
-    background: "transparent",
-    color: "white",
-    marginTop: 8
-  },
-
   bar: {
     height: 10,
     background: "#1b2a23",
     borderRadius: 10,
     overflow: "hidden"
   },
-
   fill: {
     height: "100%",
     background: "linear-gradient(90deg, #34d399, #16a34a)"
+  },
+  btn: {
+    width: "100%",
+    padding: 12,
+    marginTop: 8,
+    borderRadius: 10,
+    border: "none",
+    background: "#1f2d26",
+    color: "white"
   }
 };
