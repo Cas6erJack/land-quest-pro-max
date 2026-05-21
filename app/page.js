@@ -3,167 +3,174 @@
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  // 🌿 CORE
   const [vault, setVault] = useState(0);
   const [log, setLog] = useState([]);
 
   const [streak, setStreak] = useState(0);
-  const [weather, setWeather] = useState("☀️ Stable");
 
-  const [plants, setPlants] = useState({
-    moneyTree: 40,
-    hustleSprout: 30,
-    disciplineFern: 20
-  });
+  const [plants, setPlants] = useState([
+    { id: 1, name: "💰 Money Tree", progress: 40, note: "Savings build freedom over time", archived: false },
+    { id: 2, name: "🚗 Hustle Sprout", progress: 30, note: "Consistency beats intensity", archived: false },
+    { id: 3, name: "🔥 Discipline Fern", progress: 20, note: "Daily discipline creates stability", archived: false }
+  ]);
 
-  const [inventory, setInventory] = useState([]);
+  const [collection, setCollection] = useState([]);
 
   const addLog = (t) => setLog((l) => [t, ...l]);
 
   // 🌿 LOAD
   useEffect(() => {
-    const saved = localStorage.getItem("greenland_v2");
+    const saved = localStorage.getItem("greenland_v3");
     if (saved) {
       const d = JSON.parse(saved);
       setVault(d.vault || 0);
       setLog(d.log || []);
       setStreak(d.streak || 0);
       setPlants(d.plants || plants);
-      setInventory(d.inventory || []);
-      setWeather(d.weather || "☀️ Stable");
+      setCollection(d.collection || []);
     }
   }, []);
 
   // 🌿 SAVE
   useEffect(() => {
     localStorage.setItem(
-      "greenland_v2",
-      JSON.stringify({ vault, log, streak, plants, inventory, weather })
+      "greenland_v3",
+      JSON.stringify({ vault, log, streak, plants, collection })
     );
-  }, [vault, log, streak, plants, inventory, weather]);
+  }, [vault, log, streak, plants, collection]);
 
-  // 🌧️ WEATHER LOGIC
-  const updateWeather = () => {
-    if (streak >= 7) setWeather("☀️ Stable");
-    else if (streak >= 3) setWeather("🌤️ Building");
-    else setWeather("🌧️ Struggling");
-  };
+  // 🌱 GROW PLANT
+  const grow = (amount, type) => {
+    setPlants((prev) => {
+      let updated = prev.map((p) => {
+        if (p.archived) return p;
 
-  // 🌿 SEED DROP SYSTEM
-  const dropSeed = () => {
-    const seeds = ["Emergency Lily", "Focus Vine", "Wealth Orchid"];
-    const seed = seeds[Math.floor(Math.random() * seeds.length)];
-    setInventory((i) => [...i, seed]);
-    addLog(`🌰 Seed Pack unlocked: ${seed}`);
+        let boost = amount;
+
+        if (type === "small") boost = 10;
+        if (type === "standard") boost = 20;
+        if (type === "strong") boost = 35;
+        if (type === "nostreak") boost = 50;
+
+        let newProgress = p.progress + boost;
+
+        if (newProgress >= 100) {
+          setCollection((c) => [
+            {
+              name: p.name,
+              note: p.note,
+              unlocked: new Date().toLocaleDateString()
+            },
+            ...c
+          ]);
+
+          addLog(`🌿 ${p.name} fully grown → moved to collection`);
+
+          return { ...p, progress: 100, archived: true };
+        }
+
+        return { ...p, progress: newProgress };
+      });
+
+      return updated;
+    });
   };
 
   // 🚗 WORK
   const doWork = () => {
-    setPlants((p) => ({
-      moneyTree: p.moneyTree + 15,
-      hustleSprout: p.hustleSprout + 15,
-      disciplineFern: p.disciplineFern + 10
-    }));
-
     setVault((v) => v + 10);
+    grow(25, "standard");
     addLog("🚗 Work completed — garden watered");
-
-    dropSeed();
-    updateWeather();
   };
 
-  // 💰 SAVE
-  const saveMoney = () => {
-    setPlants((p) => ({
-      ...p,
-      moneyTree: p.moneyTree + 25
-    }));
+  // 💰 SAVE OPTIONS
+  const saveSmall = () => {
+    setVault((v) => v + 5);
+    grow(10, "small");
+    addLog("🪙 Small save completed");
+  };
 
+  const saveStandard = () => {
+    setVault((v) => v + 20);
+    grow(20, "standard");
+    addLog("💵 Standard save completed");
+  };
+
+  const saveStrong = () => {
+    setVault((v) => v + 50);
+    grow(35, "strong");
+    addLog("🏦 Strong save completed");
+  };
+
+  const noSpend = () => {
     setVault((v) => v + 10);
-    addLog("💰 Savings added — Money Tree boosted");
-
-    dropSeed();
-    updateWeather();
+    grow(50, "nostreak");
+    addLog("🚫 No-spend win (rare growth boost)");
   };
 
-  // 🔥 CHECK-IN
   const checkIn = () => {
     setStreak((s) => s + 1);
-    setWeather("☀️ Stable");
     addLog("🔥 Daily check-in completed");
-    updateWeather();
-  };
-
-  // 🌱 PLANT RENDER
-  const Plant = ({ name, value }) => {
-    const stage =
-      value < 30 ? "🌰 Seed" :
-      value < 60 ? "🌱 Growing" :
-      value < 100 ? "🌿 Strong" :
-      "🌳 Thriving";
-
-    return (
-      <div style={styles.card}>
-        <h3>{name}</h3>
-        <p>{stage}</p>
-        <div style={styles.bar}>
-          <div style={{ ...styles.fill, width: `${value}%` }} />
-        </div>
-      </div>
-    );
   };
 
   return (
     <div style={styles.bg}>
 
-      {/* 🌿 HEADER */}
+      {/* HEADER */}
       <div style={styles.card}>
-        <h2>🌱 Greenland Garden</h2>
-        <p>Weather: {weather}</p>
+        <h2>🌿 Greenland Garden</h2>
         <p>Streak: {streak} 🔥</p>
         <p>Vault: ${vault}</p>
       </div>
 
-      {/* 🌿 ZONE: BACKYARD */}
-      <div style={styles.zone}>
-        <h3>🏡 Backyard</h3>
-
-        <Plant name="💰 Money Tree" value={plants.moneyTree} />
-        <Plant name="🚗 Hustle Sprout" value={plants.hustleSprout} />
-        <Plant name="🔥 Discipline Fern" value={plants.disciplineFern} />
-      </div>
-
-      {/* 💧 ACTIONS */}
+      {/* 🌱 ACTIVE GARDEN */}
       <div style={styles.card}>
-        <h3>💧 Care Actions</h3>
+        <h3>🌱 Your Garden</h3>
 
-        <button style={styles.btn} onClick={doWork}>
-          🚗 Work Shift (Water Garden)
-        </button>
-
-        <button style={styles.btn} onClick={saveMoney}>
-          💰 Save Money (Boost Growth)
-        </button>
-
-        <button style={styles.btn} onClick={checkIn}>
-          🔥 Daily Check-In
-        </button>
-      </div>
-
-      {/* 🌰 INVENTORY */}
-      <div style={styles.card}>
-        <h3>🌰 Seed Packs</h3>
-        {inventory.length === 0 && <p>No seeds yet</p>}
-        {inventory.map((s, i) => (
-          <div key={i}>• {s}</div>
+        {plants.filter(p => !p.archived).map((p) => (
+          <div key={p.id} style={styles.plant}>
+            <h4>{p.name}</h4>
+            <div style={styles.bar}>
+              <div style={{ ...styles.fill, width: `${p.progress}%` }} />
+            </div>
+            <p style={{ fontSize: 12, opacity: 0.7 }}>{p.progress}% grown</p>
+          </div>
         ))}
       </div>
 
-      {/* 📜 LOG */}
+      {/* 💰 ACTIONS */}
       <div style={styles.card}>
-        <h3>📜 Garden Log</h3>
+        <h3>💰 Save Options</h3>
+
+        <button style={styles.btn} onClick={saveSmall}>🪙 Small Save</button>
+        <button style={styles.btn} onClick={saveStandard}>💵 Standard Save</button>
+        <button style={styles.btn} onClick={saveStrong}>🏦 Strong Save</button>
+        <button style={styles.btn} onClick={noSpend}>🚫 No-Spend Win</button>
+
+        <button style={styles.btn2} onClick={doWork}>🚗 Work Shift</button>
+        <button style={styles.btn2} onClick={checkIn}>🔥 Daily Check-In</button>
+      </div>
+
+      {/* 📖 COLLECTION */}
+      <div style={styles.card}>
+        <h3>📖 Garden Collection</h3>
+
+        {collection.length === 0 && <p style={{ opacity: 0.6 }}>No plants fully grown yet</p>}
+
+        {collection.map((c, i) => (
+          <div key={i} style={styles.collectionCard}>
+            <h4>{c.name}</h4>
+            <p style={{ fontSize: 12 }}>{c.note}</p>
+            <p style={{ fontSize: 11, opacity: 0.6 }}>Unlocked: {c.unlocked}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* LOG */}
+      <div style={styles.card}>
+        <h3>📜 Activity Feed</h3>
         {log.map((l, i) => (
-          <div key={i}>• {l}</div>
+          <div key={i} style={{ fontSize: 12 }}>• {l}</div>
         ))}
       </div>
 
@@ -173,7 +180,7 @@ export default function Page() {
 
 const styles = {
   bg: {
-    background: "#07130f",
+    background: "linear-gradient(#071a12, #050807)",
     minHeight: "100vh",
     color: "white",
     padding: 15,
@@ -182,30 +189,45 @@ const styles = {
   card: {
     background: "#0f1f18",
     padding: 15,
-    borderRadius: 12,
+    borderRadius: 14,
+    marginBottom: 12,
+    boxShadow: "0 0 15px rgba(0,255,120,0.08)"
+  },
+  plant: {
     marginBottom: 12
   },
-  zone: {
-    marginBottom: 15
+  bar: {
+    height: 10,
+    background: "#1b2a23",
+    borderRadius: 10,
+    overflow: "hidden"
+  },
+  fill: {
+    height: "100%",
+    background: "linear-gradient(90deg, #34d399, #16a34a)"
   },
   btn: {
     width: "100%",
-    padding: 12,
+    padding: 10,
     marginTop: 8,
     borderRadius: 10,
     border: "none",
     background: "#1f2d26",
     color: "white"
   },
-  bar: {
-    height: 10,
-    background: "#1b2a23",
+  btn2: {
+    width: "100%",
+    padding: 10,
+    marginTop: 8,
     borderRadius: 10,
-    overflow: "hidden",
-    marginTop: 8
+    border: "none",
+    background: "#0b3b2a",
+    color: "white"
   },
-  fill: {
-    height: "100%",
-    background: "linear-gradient(90deg, #34d399, #16a34a)"
+  collectionCard: {
+    background: "#0b1511",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 8
   }
 };
