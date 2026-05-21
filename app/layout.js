@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import "./../styles/globals.css";
 
 export default function RootLayout({ children }) {
   return (
     <html>
-      <body style={{ margin: 0, background: "#070c0b", color: "#fff" }}>
+      <body>
         <div style={{ paddingBottom: 70 }}>
           {children}
         </div>
