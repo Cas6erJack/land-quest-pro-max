@@ -57,3 +57,11 @@ export default function TasksPage() {
       <h1>📋 Daily Tasks</h1>
 
       <p>⏳ Resets every 24 hours</p>
+
+const card = {
+  background: "#0f1715",
+  padding: 16,
+  marginBottom: 12,
+  borderRadius: 16,
+  border: "1px solid rgba(255,255,255,0.05)"
+};
