@@ -8,6 +8,7 @@ export default function Home() {
   const [coins, setCoins] = useState(0);
   const [level, setLevel] = useState(1);
 
+  // Load saved data
   useEffect(() => {
     const data = localStorage.getItem("greenland");
     if (data) {
@@ -19,6 +20,7 @@ export default function Home() {
     }
   }, []);
 
+  // Save data whenever it changes
   useEffect(() => {
     localStorage.setItem(
       "greenland",
@@ -26,18 +28,26 @@ export default function Home() {
     );
   }, [saved, xp, coins, level]);
 
-  const calculateLevel = (xpValue) => Math.floor(xpValue / 500) + 1;
+  // Level formula
+  const calculateLevel = (xpValue) => {
+    return Math.floor(xpValue / 500) + 1;
+  };
 
+  // Main game engine action
   const addSavings = (amount) => {
-    const newSaved = saved + amount;
-    const newXp = xp + amount * 10;
-    const newCoins = coins + amount;
-    const newLevel = calculateLevel(newXp);
+    setSaved((prevSaved) => {
+      const newSaved = prevSaved + amount;
 
-    setSaved(newSaved);
-    setXp(newXp);
-    setCoins(newCoins);
-    setLevel(newLevel);
+      const newXp = xp + amount * 10;
+      const newCoins = coins + amount;
+      const newLevel = calculateLevel(newXp);
+
+      setXp(newXp);
+      setCoins(newCoins);
+      setLevel(newLevel);
+
+      return newSaved;
+    });
   };
 
   return (
@@ -66,6 +76,7 @@ export default function Home() {
 
       <div style={card}>
         <h3>Add Savings</h3>
+
         <button onClick={() => addSavings(5)}>+ $5</button>
         <button onClick={() => addSavings(10)}>+ $10</button>
         <button onClick={() => addSavings(20)}>+ $20</button>
