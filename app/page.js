@@ -3,125 +3,183 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function Page() {
-  const [xp, setXp] = useState(0);
-  const [landFund, setLandFund] = useState(0);
-  const [log, setLog] = useState([]);
+  const [momentum, setMomentum] = useState(0);
+  const [vault, setVault] = useState(0);
+  const [chronicle, setChronicle] = useState([]);
 
-  const [wifeXp, setWifeXp] = useState(0);
-  const [energy, setEnergy] = useState(100);
+  const [coOpSync, setCoOpSync] = useState(0);
+  const [drive, setDrive] = useState(100);
   const [streak, setStreak] = useState(0);
-  const [lastCheckIn, setLastCheckIn] = useState(null);
+  const [lastFocus, setLastFocus] = useState(null);
 
-  const LAND_GOAL = 5000;
+  const GOAL = 5000;
 
-  const level = useMemo(() => Math.floor(xp / 200) + 1, [xp]);
+  const level = useMemo(() => Math.floor(momentum / 200) + 1, [momentum]);
 
-  const title = useMemo(() => {
-    if (level >= 13) return "Land Owner (Locked In)";
-    if (level >= 9) return "Land Seeker";
-    if (level >= 6) return "Builder";
-    if (level >= 3) return "Grinder";
-    return "Rookie Hustler";
+  const rank = useMemo(() => {
+    if (level >= 13) return "🏆 Land Sovereign";
+    if (level >= 9) return "🗺️ Territory Seeker";
+    if (level >= 6) return "🧱 Builder";
+    if (level >= 3) return "⚒️ Grinder";
+    return "🌱 Starter";
   }, [level]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("landQuestRPG");
+    const saved = localStorage.getItem("greenland_save");
     if (saved) {
       const data = JSON.parse(saved);
-      setXp(data.xp || 0);
-      setLandFund(data.landFund || 0);
-      setLog(data.log || []);
-      setWifeXp(data.wifeXp || 0);
-      setEnergy(data.energy ?? 100);
+      setMomentum(data.momentum || 0);
+      setVault(data.vault || 0);
+      setChronicle(data.chronicle || []);
+      setCoOpSync(data.coOpSync || 0);
+      setDrive(data.drive ?? 100);
       setStreak(data.streak || 0);
-      setLastCheckIn(data.lastCheckIn || null);
+      setLastFocus(data.lastFocus || null);
     }
   }, []);
 
   useEffect(() => {
     localStorage.setItem(
-      "landQuestRPG",
-      JSON.stringify({ xp, landFund, log, wifeXp, energy, streak, lastCheckIn })
+      "greenland_save",
+      JSON.stringify({ momentum, vault, chronicle, coOpSync, drive, streak, lastFocus })
     );
-  }, [xp, landFund, log, wifeXp, energy, streak, lastCheckIn]);
+  }, [momentum, vault, chronicle, coOpSync, drive, streak, lastFocus]);
 
-  const addLog = (text) => setLog((l) => [text, ...l]);
+  const addChronicle = (text) => setChronicle((c) => [text, ...c]);
 
-  const doDoorDash = () => {
-    if (energy < 20) return;
-    setEnergy((e) => e - 20);
-    setXp((x) => x + 25);
-    addLog("🚗 DoorDash completed (+25 XP, -20 Energy)");
+  const grindRun = () => {
+    if (drive < 20) return;
+    setDrive((d) => d - 20);
+    setMomentum((m) => m + 25);
+    addChronicle("🚗 Grind Run completed (+Momentum, -Drive)");
   };
 
-  const saveMoney = (amount = 10) => {
-    setXp((x) => x + amount * 2);
-    setLandFund((f) => f + amount);
-    addLog(`💰 Saved $${amount}`);
+  const vaultDeposit = (amount = 10) => {
+    setMomentum((m) => m + amount * 2);
+    setVault((v) => v + amount);
+    addChronicle(`💰 Vault Deposit +$${amount}`);
   };
 
-  const wifeAction = () => {
-    setWifeXp((x) => x + 10);
-    setXp((x) => x + 5);
-    addLog("👩 Wife action completed");
+  const coOpAction = () => {
+    setCoOpSync((c) => c + 10);
+    setMomentum((m) => m + 5);
+    addChronicle("👥 Co-op Sync boosted");
   };
 
-  const checkIn = () => {
+  const dailyFocus = () => {
     const today = new Date().toDateString();
-    if (lastCheckIn !== today) {
+    if (lastFocus !== today) {
       setStreak((s) => s + 1);
-      setEnergy(100);
-      setLastCheckIn(today);
-      setXp((x) => x + 10);
-      addLog("🔥 Daily check-in (+streak + energy refill)");
+      setDrive(100);
+      setLastFocus(today);
+      setMomentum((m) => m + 10);
+      addChronicle("🔥 Daily Focus Ritual completed");
     }
   };
 
-  const noSpend = () => {
-    setXp((x) => x + 15);
-    addLog("🚫 No-spend challenge completed");
+  const freezeChallenge = () => {
+    setMomentum((m) => m + 15);
+    addChronicle("❄️ Freeze Challenge completed");
   };
 
-  const progress = Math.min((landFund / LAND_GOAL) * 100, 100);
+  const progress = Math.min((vault / GOAL) * 100, 100);
 
   return (
-    <div style={{ padding: 20, maxWidth: 600, margin: "0 auto", fontFamily: "Arial" }}>
-      <h1>🌲 Land Quest 2.0</h1>
+    <div style={styles.bg}>
 
-      <p><b>Rank:</b> {title}</p>
-      <p><b>Level:</b> {level}</p>
+      <h1 style={styles.title}>🌲 GREENLAND</h1>
+      <p style={styles.sub}>The Land Builder Game</p>
 
-      <div style={{ background: "#111", color: "#fff", padding: 10, borderRadius: 10 }}>
-        <p>🔥 XP: {xp}</p>
-        <p>👩 Wife XP: {wifeXp}</p>
-        <p>⚡ Energy: {energy}/100</p>
-        <p>💰 Land Fund: ${landFund}</p>
+      {/* STATS PANEL */}
+      <div style={styles.panel}>
+        <p>🏷️ Rank: {rank}</p>
+        <p>📈 Level: {level}</p>
+        <p>⚡ Drive: {drive}/100</p>
+        <p>🔥 Momentum: {momentum}</p>
+        <p>👥 Co-op Sync: {coOpSync}</p>
+        <p>💰 Land Vault: ${vault}</p>
         <p>⚡ Streak: {streak}</p>
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <p>🌲 Land Progress</p>
-        <div style={{ background: "#333", height: 20 }}>
-          <div style={{ width: `${progress}%`, height: "100%", background: "green" }} />
+      {/* PROGRESS BAR */}
+      <div style={styles.barWrap}>
+        <div style={styles.barLabel}>🏁 Land Progress</div>
+        <div style={styles.bar}>
+          <div style={{ ...styles.fill, width: `${progress}%` }} />
         </div>
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <h3>⚡ Actions</h3>
+      {/* ACTIONS */}
+      <div style={styles.panel}>
+        <h3>⚔️ Actions</h3>
 
-        <button onClick={doDoorDash}>🚗 DoorDash</button><br /><br />
-        <button onClick={() => saveMoney(10)}>💰 Save $10</button><br /><br />
-        <button onClick={wifeAction}>👩 Wife Action</button><br /><br />
-        <button onClick={checkIn}>🔥 Daily Check-In</button><br /><br />
-        <button onClick={noSpend}>🚫 No-Spend Challenge</button>
+        <button style={styles.btn} onClick={grindRun}>🚗 Grind Run</button>
+        <button style={styles.btn} onClick={() => vaultDeposit(10)}>💰 Vault Deposit</button>
+        <button style={styles.btn} onClick={coOpAction}>👥 Co-op Sync</button>
+        <button style={styles.btn} onClick={dailyFocus}>🔥 Daily Focus Ritual</button>
+        <button style={styles.btn} onClick={freezeChallenge}>❄️ Freeze Challenge</button>
       </div>
 
-      <div style={{ marginTop: 20 }}>
-        <h3>📜 Log</h3>
-        {log.map((l, i) => (
-          <div key={i}>• {l}</div>
+      {/* CHRONICLE */}
+      <div style={styles.panel}>
+        <h3>📜 Chronicle</h3>
+        {chronicle.map((c, i) => (
+          <div key={i} style={{ fontSize: 12, opacity: 0.9 }}>• {c}</div>
         ))}
       </div>
+
     </div>
   );
 }
+
+const styles = {
+  bg: {
+    background: "linear-gradient(#0b1220, #05070d)",
+    color: "white",
+    minHeight: "100vh",
+    padding: 20,
+    fontFamily: "Arial"
+  },
+  title: {
+    fontSize: 28,
+    marginBottom: 0
+  },
+  sub: {
+    opacity: 0.7,
+    marginBottom: 20
+  },
+  panel: {
+    background: "#111827",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    boxShadow: "0 0 10px rgba(0,255,100,0.1)"
+  },
+  btn: {
+    display: "block",
+    width: "100%",
+    marginBottom: 8,
+    padding: 12,
+    borderRadius: 10,
+    border: "none",
+    background: "#1f2937",
+    color: "white",
+    cursor: "pointer"
+  },
+  barWrap: {
+    marginBottom: 15
+  },
+  barLabel: {
+    marginBottom: 5
+  },
+  bar: {
+    height: 12,
+    background: "#1f2937",
+    borderRadius: 10,
+    overflow: "hidden"
+  },
+  fill: {
+    height: "100%",
+    background: "linear-gradient(90deg, #22c55e, #16a34a)"
+  }
+};
