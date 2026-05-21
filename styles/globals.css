@@ -5,13 +5,32 @@ body {
   color: #e8f1ee;
 }
 
-/* smooth text */
-h1, h2, h3 {
-  margin: 0;
-  font-weight: 600;
+/* PAGE IDENTITY COLORS */
+.page-home h1 { color: #7dd3a0; }
+.page-tasks h1 { color: #ffd166; }
+.page-plants h1 { color: #4ecdc4; }
+.page-shop h1 { color: #c77dff; }
+
+/* BASE CARD SYSTEM */
+.card {
+  background: #0f1715;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* buttons (calm, rounded, consistent) */
+/* EMPHASIZED CARDS */
+.card-primary {
+  border: 1px solid rgba(125, 211, 160, 0.3);
+  transform: scale(1.01);
+}
+
+.card-warning {
+  border: 1px solid rgba(255, 209, 102, 0.3);
+}
+
+/* BUTTONS */
 button {
   padding: 10px 14px;
   margin: 6px 4px;
@@ -20,36 +39,14 @@ button {
   background: #1f6f4a;
   color: white;
   font-weight: 500;
-  cursor: pointer;
-  transition: 0.2s ease;
 }
 
-button:hover {
-  transform: translateY(-1px);
-  opacity: 0.9;
-}
-
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* links */
-a {
-  color: #9ad6b9;
-  text-decoration: none;
-}
-
-/* subtle scroll feel */
-* {
-  box-sizing: border-box;
-}
-
+/* ANIMATION */
 .card-animate {
-  animation: pop 0.25s ease-out;
+  animation: pop 0.2s ease-out;
 }
 
 @keyframes pop {
-  0% { transform: scale(0.97); opacity: 0.6; }
-  100% { transform: scale(1); opacity: 1; }
+  from { transform: scale(0.98); opacity: 0.6; }
+  to { transform: scale(1); opacity: 1; }
 }
