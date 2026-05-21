@@ -1,62 +1,93 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const plants = [
-  { name: "Bamboo", threshold: 0, fact: "One of the fastest-growing plants." },
-  { name: "Lavender", threshold: 300, fact: "Used for calm and relaxation." },
-  { name: "Cherry Blossom", threshold: 800, fact: "Symbol of renewal." },
-  { name: "Oak Tree", threshold: 1500, fact: "Represents long-term strength." }
-];
+import { plantList } from "@/data/plants";
 
 export default function PlantsPage() {
   const [xp, setXp] = useState(0);
+  const [ownedSeeds, setOwnedSeeds] = useState([]);
 
   useEffect(() => {
-    const data = localStorage.getItem("greenland");
-    if (data) {
-      const parsed = JSON.parse(data);
+    const game = localStorage.getItem("greenland");
+    if (game) {
+      const parsed = JSON.parse(game);
       setXp(parsed.xp || 0);
+    }
+
+    const seeds = localStorage.getItem("greenland_seeds");
+    if (seeds) {
+      setOwnedSeeds(JSON.parse(seeds));
     }
   }, []);
 
-  const getStage = (threshold) => {
-    const progress = xp - threshold;
-
-    if (progress < 0) return "Seed 🌰";
-    if (progress < 200) return "Sprout 🌱";
-    if (progress < 500) return "Growing 🌿";
-    return "Mature 🌳";
+  const hasSeed = (seedId) => {
+    return ownedSeeds.some((s) => s.id === seedId);
   };
 
-  const getProgress = (threshold) => {
-    const value = ((xp - threshold) / 500) * 100;
-    return Math.max(0, Math.min(value, 100));
+  const getStage = (plant) => {
+    const thresholds = plant.thresholds;
+
+    if (xp < thresholds[0]) return "Seed 🌰";
+    if (xp < thresholds[1]) return "Sprout 🌱";
+    if (xp < thresholds[2]) return "Growing 🌿";
+    if (xp < thresholds[3]) return "Mature 🌳";
+
+    return "Flourishing 🌳✨";
+  };
+
+  const getProgress = (plant) => {
+    const thresholds = plant.thresholds;
+    let stageIndex = 0;
+
+    for (let i = 0; i < thresholds.length; i++) {
+      if (xp >= thresholds[i]) stageIndex = i;
+    }
+
+    const current = thresholds[stageIndex] || 0;
+    const next = thresholds[stageIndex + 1] || current + 500;
+
+    const progress = ((xp - current) / (next - current)) * 100;
+
+    return Math.max(0, Math.min(progress, 100));
   };
 
   return (
     <div style={{ padding: 20 }}>
       <h1>🌱 Your Garden</h1>
 
-      <p>XP: {xp}</p>
+      <p>⚡ XP: {xp}</p>
 
-      {plants.map((plant, i) => (
-        <div key={i} style={card}>
-          <h2>{plant.name}</h2>
+      {plantList.map((plant) => (
+        <div key={plant.id} style={card}>
+          <h2>
+            {plant.name}{" "}
+            {!hasSeed(plant.seedId) && (
+              <span style={{ fontSize: 12 }}>🔒 Locked (no seed)</span>
+            )}
+          </h2>
+
           <p>{plant.fact}</p>
 
           <p>
-            Stage: <b>{getStage(plant.threshold)}</b>
+            Stage: <b>{getStage(plant)}</b>
           </p>
 
-          <div style={barWrap}>
-            <div
-              style={{
-                ...bar,
-                width: `${getProgress(plant.threshold)}%`
-              }}
-            />
-          </div>
+          {!hasSeed(plant.seedId) ? (
+            <p style={{ opacity: 0.6 }}>
+              Buy this seed in the shop to grow it.
+            </p>
+          ) : (
+            <>
+              <div style={barWrap}>
+                <div
+                  style={{
+                    ...bar,
+                    width: `${getProgress(plant)}%`
+                  }}
+                />
+              </div>
+            </>
+          )}
         </div>
       ))}
     </div>
