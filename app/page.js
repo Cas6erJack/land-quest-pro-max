@@ -88,25 +88,38 @@ export default function Home() {
   const xpPercent = (currentXP / 500) * 100;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>🌿 Greenland</h1>
+  <div className="page-home" style={{ padding: 20 }}>
+    <h1>🌿 Greenland</h1>
 
-      <div style={card}>
-        <h2>🏡 Land Fund</h2>
-        <p>
-          ${saved} / ${LAND_GOAL}
-        </p>
+    {/* LAND FUND */}
+    <div className="card card-primary card-animate">
+      <h2>🏡 Land Fund</h2>
 
-        <div style={barWrap}>
-          <div
-            style={{
-              ...landFill,
-              width: `${landPercent}%`
-            }}
-          />
-        </div>
+      <p>
+        ${saved} / ${LAND_GOAL}
+      </p>
+
+      <div className="barWrap">
+        <div
+          className="barGreen"
+          style={{ width: `${landPercent}%` }}
+        />
       </div>
+    </div>
 
+    {/* XP */}
+    <div className="card card-animate">
+      <h2>⚡ XP</h2>
+
+      <p>{xp}</p>
+
+      <div className="barWrap">
+        <div
+          className="barBlue"
+          style={{ width: `${xpPercent}%` }}
+        />
+      </div>
+    </div>
       <div style={card}>
         <h2>⚡ XP</h2>
         <p>{xp}</p>
