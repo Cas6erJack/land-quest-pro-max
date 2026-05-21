@@ -11,7 +11,6 @@ export default function Home() {
   const [level, setLevel] = useState(1);
 
   const [streak, setStreak] = useState(0);
-  const [lastActive, setLastActive] = useState(null);
 
   const getToday = () => new Date().toDateString();
 
@@ -26,15 +25,16 @@ export default function Home() {
       setCoins(parsed.coins || 0);
       setLevel(parsed.level || 1);
       setStreak(parsed.streak || 0);
-      setLastActive(parsed.lastActive || null);
 
+      // streak logic
       const today = getToday();
 
       if (parsed.lastActive) {
         const diff =
           new Date(today) - new Date(parsed.lastActive);
 
-        const days = diff / (1000 * 60 * 60 * 24);
+        const days =
+          diff / (1000 * 60 * 60 * 24);
 
         if (days === 1) {
           setStreak(parsed.streak + 1);
@@ -85,114 +85,8 @@ export default function Home() {
 
   const currentXP = xp % 500;
 
-  const xpPercent = (currentXP / 500) * 100;
+  const xpPercent =
+    (currentXP / 500) * 100;
 
   return (
-  <div className="page-home" style={{ padding: 20 }}>
-    <h1>🌿 Greenland</h1>
-
-    {/* LAND FUND */}
-    <div className="card card-primary card-animate">
-      <h2>🏡 Land Fund</h2>
-
-      <p>
-        ${saved} / ${LAND_GOAL}
-      </p>
-
-      <div className="barWrap">
-        <div
-          className="barGreen"
-          style={{ width: `${landPercent}%` }}
-        />
-      </div>
-    </div>
-
-    {/* XP */}
-    <div className="card card-animate">
-      <h2>⚡ XP</h2>
-
-      <p>{xp}</p>
-
-      <div className="barWrap">
-        <div
-          className="barBlue"
-          style={{ width: `${xpPercent}%` }}
-        />
-      </div>
-    </div>
-      <div style={card}>
-        <h2>⚡ XP</h2>
-        <p>{xp}</p>
-
-        <div style={barWrap}>
-          <div
-            style={{
-              ...xpFill,
-              width: `${xpPercent}%`
-            }}
-          />
-        </div>
-      </div>
-
-      <div style={card}>
-        <h2>🔥 Streak</h2>
-        <p>{streak} days</p>
-      </div>
-
-      <div style={card}>
-        <h2>🪙 Coins</h2>
-        <p>{coins}</p>
-      </div>
-
-      <div style={card}>
-        <h2>📈 Level</h2>
-        <p>{level}</p>
-      </div>
-
-      <div style={card}>
-        <h3>Add Savings</h3>
-
-        <button onClick={() => addSavings(5)}>
-          + $5
-        </button>
-        <button onClick={() => addSavings(10)}>
-          + $10
-        </button>
-        <button onClick={() => addSavings(20)}>
-          + $20
-        </button>
-        <button onClick={() => addSavings(50)}>
-          + $50
-        </button>
-      </div>
-    </div>
-  );
-}
-
-const card = {
-  background: "#0f1715",
-  padding: 16,
-  marginBottom: 12,
-  borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.05)"
-};
-
-const barWrap = {
-  height: 12,
-  background: "#1a2421",
-  borderRadius: 999,
-  overflow: "hidden",
-  marginTop: 10
-};
-
-const landFill = {
-  height: "100%",
-  background: "#7dd3a0",
-  transition: "width 0.5s ease"
-};
-
-const xpFill = {
-  height: "100%",
-  background: "#66b3ff",
-  transition: "width 0.5s ease"
-};
+    <div className="page-home" style={{ padding:
