@@ -1,1 +1,15 @@
 
+body {
+  margin: 0;
+  font-family: system-ui;
+  background: #0b0f0e;
+  color: white;
+}
+button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 10px;
+  border: none;
+  background: #1f6f4a;
+  color: white;
+}
