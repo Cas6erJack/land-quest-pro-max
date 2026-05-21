@@ -9,7 +9,11 @@ export default function Home() {
   const [xp, setXp] = useState(0);
   const [coins, setCoins] = useState(0);
   const [level, setLevel] = useState(1);
+
   const [streak, setStreak] = useState(0);
+  const [lastActive, setLastActive] = useState(null);
+
+  const getToday = () => new Date().toDateString();
 
   useEffect(() => {
     const data = localStorage.getItem("greenland");
@@ -22,6 +26,22 @@ export default function Home() {
       setCoins(parsed.coins || 0);
       setLevel(parsed.level || 1);
       setStreak(parsed.streak || 0);
+      setLastActive(parsed.lastActive || null);
+
+      const today = getToday();
+
+      if (parsed.lastActive) {
+        const diff =
+          new Date(today) - new Date(parsed.lastActive);
+
+        const days = diff / (1000 * 60 * 60 * 24);
+
+        if (days === 1) {
+          setStreak(parsed.streak + 1);
+        } else if (days > 1) {
+          setStreak(0);
+        }
+      }
     }
   }, []);
 
@@ -33,25 +53,18 @@ export default function Home() {
         xp,
         coins,
         level,
-        streak
+        streak,
+        lastActive: getToday()
       })
     );
   }, [saved, xp, coins, level, streak]);
 
-  const calculateLevel = (xpValue) => {
-    return Math.floor(xpValue / 500) + 1;
-  };
-
-  const streakMultiplier = () => {
-    if (streak >= 30) return 2;
-    if (streak >= 14) return 1.5;
-    if (streak >= 7) return 1.25;
-    return 1;
-  };
+  const calculateLevel = (xpValue) =>
+    Math.floor(xpValue / 500) + 1;
 
   const addSavings = (amount) => {
     const xpGain = Math.floor(
-      amount * 10 * streakMultiplier()
+      amount * 10 * (1 + streak * 0.05)
     );
 
     const newSaved = saved + amount;
@@ -70,36 +83,21 @@ export default function Home() {
     100
   );
 
-  const currentLevelXP = xp % 500;
+  const currentXP = xp % 500;
 
-  const xpPercent =
-    (currentLevelXP / 500) * 100;
+  const xpPercent = (currentXP / 500) * 100;
 
   return (
     <div style={{ padding: 20 }}>
-      <div style={{ marginBottom: 20 }}>
-        <h1>🌿 Greenland</h1>
-
-        <p
-          style={{
-            opacity: 0.7,
-            marginTop: 4
-          }}
-        >
-          Grow your land fund one step at a time
-        </p>
-      </div>
+      <h1>🌿 Greenland</h1>
 
       <div style={card}>
         <h2>🏡 Land Fund</h2>
-
         <p>
-          $
-          {saved.toLocaleString()} / $
-          {LAND_GOAL.toLocaleString()}
+          ${saved} / ${LAND_GOAL}
         </p>
 
-        <div style={progressWrap}>
+        <div style={barWrap}>
           <div
             style={{
               ...landFill,
@@ -107,16 +105,13 @@ export default function Home() {
             }}
           />
         </div>
-
-        <p>{landPercent.toFixed(1)}% Complete</p>
       </div>
 
       <div style={card}>
         <h2>⚡ XP</h2>
-
         <p>{xp}</p>
 
-        <div style={progressWrap}>
+        <div style={barWrap}>
           <div
             style={{
               ...xpFill,
@@ -124,10 +119,11 @@ export default function Home() {
             }}
           />
         </div>
+      </div>
 
-        <p>
-          {currentLevelXP} / 500 XP
-        </p>
+      <div style={card}>
+        <h2>🔥 Streak</h2>
+        <p>{streak} days</p>
       </div>
 
       <div style={card}>
@@ -141,47 +137,18 @@ export default function Home() {
       </div>
 
       <div style={card}>
-        <h2>🔥 Streak</h2>
-
-        <p>{streak} Days</p>
-
-        <p>
-          XP Bonus: {streakMultiplier()}x
-        </p>
-
-        <button
-          onClick={() =>
-            setStreak(streak + 1)
-          }
-        >
-          ✅ Daily Check-In
-        </button>
-      </div>
-
-      <div style={card}>
         <h3>Add Savings</h3>
 
-        <button
-          onClick={() => addSavings(5)}
-        >
+        <button onClick={() => addSavings(5)}>
           + $5
         </button>
-
-        <button
-          onClick={() => addSavings(10)}
-        >
+        <button onClick={() => addSavings(10)}>
           + $10
         </button>
-
-        <button
-          onClick={() => addSavings(20)}
-        >
+        <button onClick={() => addSavings(20)}>
           + $20
         </button>
-
-        <button
-          onClick={() => addSavings(50)}
-        >
+        <button onClick={() => addSavings(50)}>
           + $50
         </button>
       </div>
@@ -194,13 +161,11 @@ const card = {
   padding: 16,
   marginBottom: 12,
   borderRadius: 16,
-  border:
-    "1px solid rgba(255,255,255,0.05)"
+  border: "1px solid rgba(255,255,255,0.05)"
 };
 
-const progressWrap = {
-  width: "100%",
-  height: 14,
+const barWrap = {
+  height: 12,
   background: "#1a2421",
   borderRadius: 999,
   overflow: "hidden",
@@ -210,11 +175,11 @@ const progressWrap = {
 const landFill = {
   height: "100%",
   background: "#7dd3a0",
-  transition: "width .4s ease"
+  transition: "width 0.5s ease"
 };
 
 const xpFill = {
   height: "100%",
   background: "#66b3ff",
-  transition: "width .4s ease"
+  transition: "width 0.5s ease"
 };
