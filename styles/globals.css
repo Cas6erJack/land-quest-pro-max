@@ -50,3 +50,23 @@ button {
   from { transform: scale(0.98); opacity: 0.6; }
   to { transform: scale(1); opacity: 1; }
 }
+
+.barWrap {
+  height: 12px;
+  background: #1a2421;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.barGreen {
+  height: 100%;
+  background: #7dd3a0;
+  transition: width 0.5s ease;
+}
+
+.barBlue {
+  height: 100%;
+  background: #66b3ff;
+  transition: width 0.5s ease;
+}
