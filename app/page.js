@@ -89,4 +89,74 @@ export default function Home() {
     (currentXP / 500) * 100;
 
   return (
-    <div className="page-home" style={{ padding:
+    <div className="page-home" style={{ padding: 20 }}>
+      <h1>🌿 Greenland</h1>
+
+      {/* LAND FUND */}
+      <div className="card card-primary card-animate">
+        <h2>🏡 Land Fund</h2>
+
+        <p>
+          ${saved} / ${LAND_GOAL}
+        </p>
+
+        <div className="barWrap">
+          <div
+            className="barGreen"
+            style={{ width: `${landPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* XP */}
+      <div className="card card-animate">
+        <h2>⚡ XP</h2>
+
+        <p>{xp}</p>
+
+        <div className="barWrap">
+          <div
+            className="barBlue"
+            style={{ width: `${xpPercent}%` }}
+          />
+        </div>
+      </div>
+
+      {/* STREAK */}
+      <div className="card card-animate">
+        <h2>🔥 Streak</h2>
+        <p>{streak} days</p>
+      </div>
+
+      {/* COINS */}
+      <div className="card card-animate">
+        <h2>🪙 Coins</h2>
+        <p>{coins}</p>
+      </div>
+
+      {/* LEVEL */}
+      <div className="card card-animate">
+        <h2>📈 Level</h2>
+        <p>{level}</p>
+      </div>
+
+      {/* ACTIONS */}
+      <div className="card card-animate">
+        <h3>Add Savings</h3>
+
+        <button onClick={() => addSavings(5)}>
+          + $5
+        </button>
+        <button onClick={() => addSavings(10)}>
+          + $10
+        </button>
+        <button onClick={() => addSavings(20)}>
+          + $20
+        </button>
+        <button onClick={() => addSavings(50)}>
+          + $50
+        </button>
+      </div>
+    </div>
+  );
+}
