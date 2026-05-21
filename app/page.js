@@ -1,187 +1,179 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Page() {
-  // 🌿 CORE STATE
-  const [water, setWater] = useState(0);
-  const [plants, setPlants] = useState({
-    moneyTree: { growth: 0, unlocked: false },
-    hustleSprout: { growth: 0, unlocked: false },
-    disciplineFern: { growth: 0, unlocked: false }
-  });
-
+  // 🌿 CORE
+  const [vault, setVault] = useState(0);
   const [log, setLog] = useState([]);
 
-  const addLog = (text) => setLog((l) => [text, ...l]);
+  const [streak, setStreak] = useState(0);
+  const [weather, setWeather] = useState("☀️ Stable");
 
-  // 🌿 LOAD SAVE
+  const [plants, setPlants] = useState({
+    moneyTree: 40,
+    hustleSprout: 30,
+    disciplineFern: 20
+  });
+
+  const [inventory, setInventory] = useState([]);
+
+  const addLog = (t) => setLog((l) => [t, ...l]);
+
+  // 🌿 LOAD
   useEffect(() => {
-    const saved = localStorage.getItem("greenland_garden");
+    const saved = localStorage.getItem("greenland_v2");
     if (saved) {
-      const data = JSON.parse(saved);
-      setWater(data.water || 0);
-      setPlants(data.plants || plants);
-      setLog(data.log || []);
+      const d = JSON.parse(saved);
+      setVault(d.vault || 0);
+      setLog(d.log || []);
+      setStreak(d.streak || 0);
+      setPlants(d.plants || plants);
+      setInventory(d.inventory || []);
+      setWeather(d.weather || "☀️ Stable");
     }
   }, []);
 
   // 🌿 SAVE
   useEffect(() => {
     localStorage.setItem(
-      "greenland_garden",
-      JSON.stringify({ water, plants, log })
+      "greenland_v2",
+      JSON.stringify({ vault, log, streak, plants, inventory, weather })
     );
-  }, [water, plants, log]);
+  }, [vault, log, streak, plants, inventory, weather]);
 
-  // 💧 HELPERS
-  const growPlant = (key, amount) => {
-    setPlants((p) => {
-      const updated = { ...p };
-
-      updated[key].growth += amount;
-
-      // unlock at 100
-      if (updated[key].growth >= 100) {
-        updated[key].unlocked = true;
-      }
-
-      return updated;
-    });
+  // 🌧️ WEATHER LOGIC
+  const updateWeather = () => {
+    if (streak >= 7) setWeather("☀️ Stable");
+    else if (streak >= 3) setWeather("🌤️ Building");
+    else setWeather("🌧️ Struggling");
   };
 
-  // 🚗 WORK = BIG WATER (ALL PLANTS)
-  const doDoorDash = () => {
-    setWater((w) => w + 1);
-
-    setPlants((p) => {
-      const updated = { ...p };
-      Object.keys(updated).forEach((k) => {
-        updated[k].growth += 15;
-        if (updated[k].growth >= 100) updated[k].unlocked = true;
-      });
-      return updated;
-    });
-
-    addLog("🚗 You worked today — your garden was watered heavily");
+  // 🌿 SEED DROP SYSTEM
+  const dropSeed = () => {
+    const seeds = ["Emergency Lily", "Focus Vine", "Wealth Orchid"];
+    const seed = seeds[Math.floor(Math.random() * seeds.length)];
+    setInventory((i) => [...i, seed]);
+    addLog(`🌰 Seed Pack unlocked: ${seed}`);
   };
 
-  // 💰 SAVE = MONEY TREE ONLY
+  // 🚗 WORK
+  const doWork = () => {
+    setPlants((p) => ({
+      moneyTree: p.moneyTree + 15,
+      hustleSprout: p.hustleSprout + 15,
+      disciplineFern: p.disciplineFern + 10
+    }));
+
+    setVault((v) => v + 10);
+    addLog("🚗 Work completed — garden watered");
+
+    dropSeed();
+    updateWeather();
+  };
+
+  // 💰 SAVE
   const saveMoney = () => {
-    setWater((w) => w + 1);
-    growPlant("moneyTree", 25);
-    addLog("💰 You saved money — Money Tree watered");
+    setPlants((p) => ({
+      ...p,
+      moneyTree: p.moneyTree + 25
+    }));
+
+    setVault((v) => v + 10);
+    addLog("💰 Savings added — Money Tree boosted");
+
+    dropSeed();
+    updateWeather();
   };
 
-  // 🔥 CHECK-IN = DISCIPLINE BOOST
+  // 🔥 CHECK-IN
   const checkIn = () => {
-    setWater((w) => w + 1);
-    growPlant("disciplineFern", 20);
-    addLog("🔥 Daily check-in — Discipline Fern gets sunlight");
+    setStreak((s) => s + 1);
+    setWeather("☀️ Stable");
+    addLog("🔥 Daily check-in completed");
+    updateWeather();
   };
 
-  // 🌿 HUSTLE BOOST (optional small action)
-  const hustleBoost = () => {
-    growPlant("hustleSprout", 15);
-    addLog("⚡ Small hustle action completed");
-  };
-
-  const PlantCard = ({ name, plant, emoji, fact }) => {
+  // 🌱 PLANT RENDER
+  const Plant = ({ name, value }) => {
     const stage =
-      plant.growth < 25
-        ? "🌰 Seed"
-        : plant.growth < 50
-        ? "🌱 Sprout"
-        : plant.growth < 100
-        ? "🌿 Growing"
-        : "🌳 Fully Grown";
+      value < 30 ? "🌰 Seed" :
+      value < 60 ? "🌱 Growing" :
+      value < 100 ? "🌿 Strong" :
+      "🌳 Thriving";
 
     return (
       <div style={styles.card}>
-        <h3>
-          {emoji} {name}
-        </h3>
-        <p>Stage: {stage}</p>
-
+        <h3>{name}</h3>
+        <p>{stage}</p>
         <div style={styles.bar}>
-          <div style={{ ...styles.fill, width: `${plant.growth}%` }} />
+          <div style={{ ...styles.fill, width: `${value}%` }} />
         </div>
-
-        {plant.unlocked && (
-          <div style={styles.fact}>
-            📖 {fact}
-          </div>
-        )}
       </div>
     );
   };
 
   return (
     <div style={styles.bg}>
-      <h2>🌱 Greenland Garden</h2>
-      <p style={{ opacity: 0.7 }}>
-        Take care of your financial garden. It grows with you.
-      </p>
 
-      {/* 🌿 PLANTS */}
-      <PlantCard
-        name="Money Tree"
-        emoji="💰"
-        plant={plants.moneyTree}
-        fact="Small consistent savings grow stronger than random big wins."
-      />
+      {/* 🌿 HEADER */}
+      <div style={styles.card}>
+        <h2>🌱 Greenland Garden</h2>
+        <p>Weather: {weather}</p>
+        <p>Streak: {streak} 🔥</p>
+        <p>Vault: ${vault}</p>
+      </div>
 
-      <PlantCard
-        name="Hustle Sprout"
-        emoji="🚗"
-        plant={plants.hustleSprout}
-        fact="Consistency in work builds long-term financial stability."
-      />
+      {/* 🌿 ZONE: BACKYARD */}
+      <div style={styles.zone}>
+        <h3>🏡 Backyard</h3>
 
-      <PlantCard
-        name="Discipline Fern"
-        emoji="🔥"
-        plant={plants.disciplineFern}
-        fact="Daily discipline matters more than motivation."
-      />
+        <Plant name="💰 Money Tree" value={plants.moneyTree} />
+        <Plant name="🚗 Hustle Sprout" value={plants.hustleSprout} />
+        <Plant name="🔥 Discipline Fern" value={plants.disciplineFern} />
+      </div>
 
       {/* 💧 ACTIONS */}
       <div style={styles.card}>
         <h3>💧 Care Actions</h3>
 
-        <button style={styles.btn} onClick={doDoorDash}>
-          🚗 DoorDash (Water All Plants)
+        <button style={styles.btn} onClick={doWork}>
+          🚗 Work Shift (Water Garden)
         </button>
 
         <button style={styles.btn} onClick={saveMoney}>
-          💰 Save Money (Money Tree)
+          💰 Save Money (Boost Growth)
         </button>
 
         <button style={styles.btn} onClick={checkIn}>
-          🔥 Daily Check-In (Sunlight Boost)
-        </button>
-
-        <button style={styles.btn} onClick={hustleBoost}>
-          ⚡ Small Hustle Action
+          🔥 Daily Check-In
         </button>
       </div>
 
-      {/* 📖 COLLECTION FEED */}
+      {/* 🌰 INVENTORY */}
       <div style={styles.card}>
-        <h3>📜 Garden Activity</h3>
-        {log.map((l, i) => (
-          <div key={i} style={{ fontSize: 12 }}>
-            • {l}
-          </div>
+        <h3>🌰 Seed Packs</h3>
+        {inventory.length === 0 && <p>No seeds yet</p>}
+        {inventory.map((s, i) => (
+          <div key={i}>• {s}</div>
         ))}
       </div>
+
+      {/* 📜 LOG */}
+      <div style={styles.card}>
+        <h3>📜 Garden Log</h3>
+        {log.map((l, i) => (
+          <div key={i}>• {l}</div>
+        ))}
+      </div>
+
     </div>
   );
 }
 
 const styles = {
   bg: {
-    background: "linear-gradient(#07130f, #050807)",
+    background: "#07130f",
     minHeight: "100vh",
     color: "white",
     padding: 15,
@@ -191,8 +183,10 @@ const styles = {
     background: "#0f1f18",
     padding: 15,
     borderRadius: 12,
-    marginTop: 12,
-    boxShadow: "0 0 12px rgba(0,255,120,0.08)"
+    marginBottom: 12
+  },
+  zone: {
+    marginBottom: 15
   },
   btn: {
     width: "100%",
@@ -213,13 +207,5 @@ const styles = {
   fill: {
     height: "100%",
     background: "linear-gradient(90deg, #34d399, #16a34a)"
-  },
-  fact: {
-    marginTop: 10,
-    fontSize: 12,
-    opacity: 0.85,
-    padding: 8,
-    background: "#0b1511",
-    borderRadius: 8
   }
 };
